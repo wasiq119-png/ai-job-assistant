@@ -1,0 +1,74 @@
+/* 1. Reset the entire page to remove white borders */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1a1a1a;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* 2. Let the root container fill the screen */
+#root {
+  width: 100%;
+  text-align: left;
+  /* Prevents text from awkwardly centering */
+}
+
+/* 3. Make text areas glow when you click them */
+textarea:focus {
+  outline: 2px solid #646cff;
+  border-color: transparent;
+}
+
+/* 4. Beautiful AI Markdown Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  color: white;
+  background-color: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  /* Keeps the rounded corners clean */
+}
+
+th,
+td {
+  border: 1px solid #444;
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #333;
+  color: #646cff;
+  /* A nice purple tint for table headers */
+  font-weight: bold;
+}
+
+/* 5. Custom scrollbar for a dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #646cff;
+}
+
+.results table {
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+  /* Adds a horizontal scrollbar ONLY for the table if it's too big */
+}
