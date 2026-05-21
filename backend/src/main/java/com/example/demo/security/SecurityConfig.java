@@ -36,7 +36,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configure(http)) // Allow cross-origin requests from our React app
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/auth/**").permitAll() // Anyone can login/signup
+                auth.requestMatchers("/", "/api/auth/**").permitAll() // Added "/" here so the public can view the root URL
                     .anyRequest().authenticated() // All other /api/ai endpoints require a JWT token!
             );
 
