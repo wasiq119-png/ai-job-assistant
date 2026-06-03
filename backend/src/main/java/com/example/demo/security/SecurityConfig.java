@@ -54,19 +54,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // This explicitly allows both your local testing environment and your live Vercel frontend
-        configuration.setAllowedOriginPatterns(List.of(
-            "http://localhost:5173",
-            "https://ai-job-assistant-*.vercel.app" // The asterisk allows any sub-build URL Vercel gives you!
+    
+        // Use the exact production URL for Vercel. 
+        // Wildcards in patterns can fail when allowCredentials is true.
+        configuration.setAllowedOrigins(List.of(
+        "http://localhost:5173", 
+        "https://ai-job-assistant-zeta.vercel.app"
         ));
-        
+    
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        return source;
+    return source;
     }
 }
