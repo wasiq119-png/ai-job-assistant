@@ -5,6 +5,24 @@ import '../App.css'
 import api from '../api/axiosConfig'
 import { AuthContext } from '../context/AuthContext'
 import AnimatedLayout, { AnimatedItem, cardVariants, slideVariants, scaleVariants } from './AnimatedLayout'
+import TiltCard3D from './3DCard'
+
+const tabVariants = {
+  initial: { opacity: 0, y: 16, scale: 0.985 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { type: 'spring', stiffness: 180, damping: 22 }
+  },
+  exit: { 
+    opacity: 0, 
+    y: -12, 
+    scale: 0.985,
+    transition: { duration: 0.16, ease: 'easeIn' }
+  }
+};
+
 
 // ─── Match Meter ───────────────────────────────────────────────────────────────
 const MatchMeter = ({ score }) => {
@@ -75,7 +93,7 @@ const JarvisChat = ({ resumeFile }) => {
   };
 
   return (
-    <div className="glass-panel" style={{ height: '100%', padding: '25px', display: 'flex', flexDirection: 'column' }}>
+    <TiltCard3D className="glass-panel" maxTilt={4} style={{ height: '100%', padding: '25px', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
         <motion.div
           animate={{ boxShadow: ['0 0 15px rgba(56,189,248,0.4)', '0 0 25px rgba(99,102,241,0.6)', '0 0 15px rgba(56,189,248,0.4)'] }}
@@ -121,15 +139,15 @@ const JarvisChat = ({ resumeFile }) => {
           placeholder="Ask a career question..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          style={{ flex: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--glass-border)', backgroundColor: 'rgba(0,0,0,0.15)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.95rem', transition: 'all 0.3s' }}
-          onFocus={e => e.target.style.borderColor = 'var(--accent-blue)'}
-          onBlur={e => e.target.style.borderColor = 'var(--glass-border)'}
+          style={{ flex: 1, padding: '16px 20px', borderRadius: '12px', border: 'none', backgroundColor: 'var(--bg-canvas)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.95rem', transition: 'box-shadow 0.3s ease', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)' }}
+          onFocus={e => e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1), 0 0 0 2px var(--accent-blue)'}
+          onBlur={e => e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1)'}
         />
         <button type="submit" className="btn-primary" disabled={loading || !query.trim()} style={{ padding: '0 20px', fontSize: '0.95rem' }}>
           Ask
         </button>
       </form>
-    </div>
+    </TiltCard3D>
   );
 };
 
@@ -151,9 +169,8 @@ const FileUploadBox = ({ label, file, onFileChange, accept }) => {
       <motion.label
         className="glass-panel"
         animate={{
-          borderColor: isDragging ? 'var(--accent-blue)' : file ? 'var(--accent-green)' : 'var(--glass-border)',
-          boxShadow: isDragging ? '0 0 20px rgba(56,189,248,0.25)' : file ? '0 0 12px rgba(52,211,153,0.15)' : 'none',
-          backgroundColor: isDragging ? 'rgba(56,189,248,0.06)' : 'rgba(0,0,0,0.05)',
+          boxShadow: isDragging ? '0 0 20px rgba(56,189,248,0.25), inset 0 0 0 2px var(--accent-blue)' : file ? '0 0 12px rgba(52,211,153,0.15), inset 0 0 0 2px var(--accent-green)' : 'inset 0 0 0 2px transparent',
+          backgroundColor: isDragging ? 'rgba(56,189,248,0.06)' : 'var(--bg-canvas)',
         }}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
@@ -161,9 +178,11 @@ const FileUploadBox = ({ label, file, onFileChange, accept }) => {
         style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           height: '110px',
-          border: `1.5px dashed ${isDragging ? 'var(--accent-blue)' : file ? 'var(--accent-green)' : 'var(--glass-border)'}`,
+          border: 'none',
           cursor: 'pointer',
           color: file ? 'var(--accent-green)' : 'var(--text-secondary)',
+          borderRadius: '16px',
+          padding: '16px'
         }}
         onDragEnter={handleDragIn} onDragOver={handleDrag} onDragLeave={handleDragOut} onDrop={handleDrop}
       >
@@ -226,6 +245,7 @@ const Dashboard = () => {
   const [liveJobs, setLiveJobs] = useState(null);
   const [history, setHistory] = useState([]);
   const [activeTab, setActiveTab] = useState('analysis');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const fetchHistory = async () => {
     try {
@@ -334,134 +354,199 @@ const Dashboard = () => {
       <AnimatedLayout
         className="main-content-layout"
         layoutKey="dashboard"
-        style={{ display: 'flex', height: '100vh', width: '100vw', color: 'var(--text-primary)', overflow: 'hidden', paddingBottom: '20px' }}
+        style={{ display: 'flex', height: '100vh', width: '100vw', color: 'var(--text-primary)', overflow: 'hidden' }}
       >
-        {/* ── SIDEBAR ── */}
-        <AnimatedItem
-          className="glass-panel"
-          style={{ width: '280px', flexShrink: 0, margin: '0 0 0 20px', padding: '24px', display: 'flex', flexDirection: 'column', height: '100%', zIndex: 10 }}
-        >
-          <h2 className="gradient-text" style={{ fontSize: '1.3rem', margin: '0 0 24px 0', fontWeight: '800' }}>Analysis History</h2>
-
-          <div style={{ flex: 1, overflowY: 'auto', paddingRight: '5px' }}>
-            {history.length === 0 && (
-              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginTop: '40px', fontSize: '0.9rem' }}>No history yet.</p>
-            )}
-
-            <AnimatePresence>
-              {history.map((item, i) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0, transition: { delay: i * 0.06, type: 'spring', stiffness: 120, damping: 16 } }}
-                  exit={{ opacity: 0, x: -30, scale: 0.95, transition: { duration: 0.2 } }}
-                  whileHover={{ x: 5 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 22 }}
-                  onClick={() => { setAnalysis(item.missingSkills); setCoverLetter(item.coverLetter || ''); setCurrentReportId(item.id); setMatchScore(item.matchScore); setActiveTab('analysis'); }}
-                  className="glass-panel"
-                  style={{
-                    position: 'relative', padding: '14px', marginBottom: '12px', cursor: 'pointer',
-                    borderLeft: `4px solid ${item.matchScore > 50 ? 'var(--accent-green)' : '#fbbf24'}`,
-                    backgroundColor: currentReportId === item.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)'
-                  }}
-                >
-                  <motion.button
-                    onClick={(e) => deleteHistoryItem(e, item.id)}
-                    style={{ position: 'absolute', top: '10px', right: '10px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '14px' }}
-                    whileHover={{ color: '#ef4444', scale: 1.2 }}
-                    whileTap={{ scale: 0.85 }}
-                  >✕</motion.button>
-                  <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '8px', paddingRight: '20px', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.jobTitle || 'Untitled Job'}
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>Score: <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{item.matchScore}%</span></div>
-                    {item.coverLetter && (
-                      <span style={{ fontSize: '0.65rem', background: 'rgba(56,189,248,0.15)', color: 'var(--accent-blue)', padding: '3px 8px', borderRadius: '12px', fontWeight: 'bold', border: '1px solid rgba(56,189,248,0.3)' }}>
-                        LETTER
-                      </span>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600', letterSpacing: '1px', textTransform: 'uppercase' }}>🛡️ Assistant Core</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--accent-green)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <motion.span
-                animate={{ opacity: [1, 0.3, 1], boxShadow: ['0 0 4px var(--accent-green)', '0 0 12px var(--accent-green)', '0 0 4px var(--accent-green)'] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ width: '6px', height: '6px', backgroundColor: 'var(--accent-green)', borderRadius: '50%', display: 'inline-block' }}
-              />
-              SECURE SESSION
-            </span>
-          </div>
-        </AnimatedItem>
-
-        {/* ── MAIN CONTENT ── */}
-        <div style={{ flex: 1, padding: '0 40px 0 20px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-
-          {/* TOP HEADER */}
-          <AnimatedItem style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexShrink: 0 }}>
-            <h1 className="gradient-text" style={{ fontSize: '2.2rem', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>
-              AI Job Assistant
-            </h1>
-            <motion.div
-              className="glass-panel"
-              animate={{ boxShadow: ['0 0 0px transparent', '0 0 15px rgba(52,211,153,0.2)', '0 0 0px transparent'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ padding: '8px 20px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}
-            >
-              <motion.div
-                animate={{ opacity: [1, 0.4, 1], scale: [1, 1.3, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                style={{ width: '8px', height: '8px', background: 'var(--accent-green)', borderRadius: '50%' }}
-              />
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '600' }}>System Online</span>
-            </motion.div>
-          </AnimatedItem>
-
-          {/* GRID ROW 1 */}
-          <AnimatedItem style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '25px', marginBottom: '25px', flexShrink: 0 }}>
-            {/* Control Center */}
-            <div className="glass-panel" style={{ padding: '25px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                  <span style={{ fontSize: '1.2rem' }}>🎛️</span>
-                  <h2 style={{ fontSize: '1.1rem', margin: 0, color: 'var(--text-primary)', fontWeight: '600' }}>Operation Center</h2>
-                </div>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <FileUploadBox label="Target Job Description" file={jobFile} onFileChange={setJobFile} accept=".pdf,.doc,.docx" />
-                  <FileUploadBox label="Your Resume" file={resumeFile} onFileChange={setResumeFile} accept=".pdf,.doc,.docx" />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                {[
-                  { label: loading ? 'Analyzing...' : '✨ Run Analysis', onClick: analyzeMatch, disabled: loading || !jobFile || !resumeFile, style: {} },
-                  { label: letterLoading ? 'Writing...' : '📝 Generate Letter', onClick: generateCoverLetter, disabled: letterLoading || !jobFile || !resumeFile, style: { background: 'rgba(56,189,248,0.1)', border: '1px solid var(--accent-blue)', color: 'var(--accent-blue)', boxShadow: 'none' } },
-                  { label: jobsLoading ? 'Hunting...' : '🌐 Find Live Jobs', onClick: findLiveJobs, disabled: jobsLoading || !resumeFile, style: { background: 'rgba(52,211,153,0.1)', border: '1px solid var(--accent-green)', color: 'var(--accent-green)', boxShadow: 'none' } },
-                ].map(({ label, onClick, disabled, style: btnStyle }) => (
-                  <motion.button
-                    key={label}
-                    className="btn-primary"
-                    onClick={onClick}
-                    disabled={disabled}
-                    style={{ flex: 1, padding: '12px 10px', fontSize: '0.9rem', ...btnStyle }}
-                    whileHover={!disabled ? { scale: 1.04, y: -2 } : {}}
-                    whileTap={!disabled ? { scale: 0.97 } : {}}
+        <div className="dashboard-container">
+          {/* ── COLLAPSIBLE SIDEBAR ── */}
+          <motion.div
+            layout
+            className="glass-panel dashboard-sidebar-wrapper"
+            animate={{
+              width: isSidebarCollapsed ? '80px' : '280px',
+              padding: isSidebarCollapsed ? '24px 12px' : '24px',
+            }}
+            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+            style={{
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              zIndex: 10,
+              overflow: 'hidden',
+            }}
+          >
+            <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: isSidebarCollapsed ? 'center' : 'space-between', marginBottom: '24px', width: '100%' }}>
+              <AnimatePresence mode="wait">
+                {!isSidebarCollapsed && (
+                  <motion.h2
+                    key="sidebar-title"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="gradient-text"
+                    style={{ fontSize: '1.2rem', margin: 0, fontWeight: '800', whiteSpace: 'nowrap' }}
                   >
-                    {label}
-                  </motion.button>
-                ))}
-              </div>
+                    Analysis History
+                  </motion.h2>
+                )}
+              </AnimatePresence>
+              <button
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="sidebar-toggle-btn"
+                title={isSidebarCollapsed ? "Expand History" : "Collapse History"}
+              >
+                {isSidebarCollapsed ? '▶' : '◀'}
+              </button>
             </div>
 
-            <JarvisChat resumeFile={resumeFile} />
-          </AnimatedItem>
+            <div className="sidebar-history-scroll" style={{ flex: 1, overflowY: 'auto', paddingRight: '5px', width: '100%' }}>
+              {history.length === 0 && !isSidebarCollapsed && (
+                <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginTop: '40px', fontSize: '0.9rem' }}>No history yet.</p>
+              )}
+              {history.length === 0 && isSidebarCollapsed && (
+                <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginTop: '40px', fontSize: '1.2rem' }} title="No history yet.">💨</p>
+              )}
+
+              <AnimatePresence>
+                {history.map((item, i) => (
+                  <TiltCard3D
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0, transition: { delay: i * 0.04, type: 'spring', stiffness: 120, damping: 16 } }}
+                    exit={{ opacity: 0, x: -30, scale: 0.95, transition: { duration: 0.2 } }}
+                    onClick={() => { setAnalysis(item.missingSkills); setCoverLetter(item.coverLetter || ''); setCurrentReportId(item.id); setMatchScore(item.matchScore); setActiveTab('analysis'); }}
+                    className="glass-panel"
+                    maxTilt={6}
+                    style={{
+                      position: 'relative',
+                      padding: isSidebarCollapsed ? '12px 6px' : '14px',
+                      marginBottom: '12px',
+                      cursor: 'pointer',
+                      borderLeft: `4px solid ${item.matchScore > 50 ? 'var(--accent-green)' : '#fbbf24'}`,
+                      backgroundColor: currentReportId === item.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: isSidebarCollapsed ? 'center' : 'stretch',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {!isSidebarCollapsed && (
+                      <motion.button
+                        onClick={(e) => deleteHistoryItem(e, item.id)}
+                        style={{ position: 'absolute', top: '10px', right: '10px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '14px', zIndex: 10 }}
+                        whileHover={{ color: '#ef4444', scale: 1.2 }}
+                        whileTap={{ scale: 0.85 }}
+                      >✕</motion.button>
+                    )}
+                    
+                    {isSidebarCollapsed ? (
+                      <div
+                        style={{ fontWeight: '800', fontSize: '0.9rem', color: item.matchScore > 50 ? 'var(--accent-green)' : '#fbbf24' }}
+                        title={`${item.jobTitle || 'Untitled Job'} (${item.matchScore}%)`}
+                      >
+                        {item.matchScore}%
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '8px', paddingRight: '20px', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.jobTitle || 'Untitled Job'}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>Score: <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{item.matchScore}%</span></div>
+                          {item.coverLetter && (
+                            <span style={{ fontSize: '0.65rem', background: 'rgba(56,189,248,0.15)', color: 'var(--accent-blue)', padding: '3px 8px', borderRadius: '12px', fontWeight: 'bold', border: '1px solid rgba(56,189,248,0.3)' }}>
+                              LETTER
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </TiltCard3D>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '100%' }}>
+              {isSidebarCollapsed ? (
+                <span style={{ fontSize: '1.2rem' }} title="Secure Session Active">🛡️</span>
+              ) : (
+                <>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600', letterSpacing: '1px', textTransform: 'uppercase' }}>🛡️ Assistant Core</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-green)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <motion.span
+                      animate={{ opacity: [1, 0.3, 1], boxShadow: ['0 0 4px var(--accent-green)', '0 0 12px var(--accent-green)', '0 0 4px var(--accent-green)'] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                      style={{ width: '6px', height: '6px', backgroundColor: 'var(--accent-green)', borderRadius: '50%', display: 'inline-block' }}
+                    />
+                    SECURE SESSION
+                  </span>
+                </>
+              )}
+            </div>
+          </motion.div>
+
+          {/* ── MAIN CONTENT ── */}
+          <motion.div layout className="dashboard-main-content" style={{ padding: '0 20px 0 0', display: 'flex', flexDirection: 'column' }}>
+            {/* TOP HEADER */}
+            <AnimatedItem style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexShrink: 0 }}>
+              <h1 className="gradient-text" style={{ fontSize: '2.2rem', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>
+                AI Job Assistant
+              </h1>
+              <motion.div
+                className="glass-panel"
+                animate={{ boxShadow: ['0 0 0px transparent', '0 0 15px rgba(52,211,153,0.2)', '0 0 0px transparent'] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ padding: '8px 20px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}
+              >
+                <motion.div
+                  animate={{ opacity: [1, 0.4, 1], scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  style={{ width: '8px', height: '8px', background: 'var(--accent-green)', borderRadius: '50%' }}
+                />
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '600' }}>System Online</span>
+              </motion.div>
+            </AnimatedItem>
+
+            {/* GRID ROW 1 */}
+            <AnimatedItem style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '25px', marginBottom: '25px', flexShrink: 0 }}>
+              {/* Control Center */}
+              <TiltCard3D className="glass-panel" maxTilt={4} style={{ padding: '25px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                    <span style={{ fontSize: '1.2rem' }}>🎛️</span>
+                    <h2 style={{ fontSize: '1.1rem', margin: 0, color: 'var(--text-primary)', fontWeight: '600' }}>Operation Center</h2>
+                  </div>
+                  <div style={{ display: 'flex', gap: '20px' }}>
+                    <FileUploadBox label="Target Job Description" file={jobFile} onFileChange={setJobFile} accept=".pdf,.doc,.docx" />
+                    <FileUploadBox label="Your Resume" file={resumeFile} onFileChange={setResumeFile} accept=".pdf,.doc,.docx" />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                  {[
+                    { label: loading ? 'Analyzing...' : '✨ Run Analysis', onClick: analyzeMatch, disabled: loading || !jobFile || !resumeFile, style: {} },
+                    { label: letterLoading ? 'Writing...' : '📝 Generate Letter', onClick: generateCoverLetter, disabled: letterLoading || !jobFile || !resumeFile, style: { background: 'rgba(56,189,248,0.1)', border: '1px solid var(--accent-blue)', color: 'var(--accent-blue)', boxShadow: 'none' } },
+                    { label: jobsLoading ? 'Hunting...' : '🌐 Find Live Jobs', onClick: findLiveJobs, disabled: jobsLoading || !resumeFile, style: { background: 'rgba(52,211,153,0.1)', border: '1px solid var(--accent-green)', color: 'var(--accent-green)', boxShadow: 'none' } },
+                  ].map(({ label, onClick, disabled, style: btnStyle }) => (
+                    <motion.button
+                      key={label}
+                      className="btn-primary"
+                      onClick={onClick}
+                      disabled={disabled}
+                      style={{ flex: 1, padding: '12px 10px', fontSize: '0.9rem', ...btnStyle }}
+                      whileHover={!disabled ? { scale: 1.04, y: -2 } : {}}
+                      whileTap={!disabled ? { scale: 0.97 } : {}}
+                    >
+                      {label}
+                    </motion.button>
+                  ))}
+                </div>
+              </TiltCard3D>
+
+              <JarvisChat resumeFile={resumeFile} />
+            </AnimatedItem>
 
           {/* GRID ROW 2: TABS */}
           <AnimatedItem className="glass-panel" style={{ display: 'flex', flexDirection: 'column', flexShrink: 0, minHeight: '600px', marginBottom: '40px' }}>
@@ -505,8 +590,7 @@ const Dashboard = () => {
                 {/* ANALYSIS TAB */}
                 {activeTab === 'analysis' && (
                   <motion.div key="analysis"
-                    initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.28, ease: 'easeOut' }}
+                    variants={tabVariants} initial="initial" animate="animate" exit="exit"
                   >
                     {!analysis ? (
                       <EmptyState icon="📊" text="Upload your documents and run an analysis to generate your match report." />
@@ -533,8 +617,7 @@ const Dashboard = () => {
                 {/* COVER LETTER TAB */}
                 {activeTab === 'letter' && (
                   <motion.div key="letter"
-                    initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.28, ease: 'easeOut' }}
+                    variants={tabVariants} initial="initial" animate="animate" exit="exit"
                   >
                     {!coverLetter && !letterLoading ? (
                       <EmptyState icon="✍️" text="Generate a custom cover letter based on your specific match profile." />
@@ -566,8 +649,7 @@ const Dashboard = () => {
                 {/* LIVE JOBS TAB */}
                 {activeTab === 'jobs' && (
                   <motion.div key="jobs"
-                    initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.28, ease: 'easeOut' }}
+                    variants={tabVariants} initial="initial" animate="animate" exit="exit"
                   >
                     {!liveJobs && !jobsLoading ? (
                       <EmptyState icon="🌐" text='Click "Find Live Jobs" to query LinkedIn, Stepstone, and Indeed via Google Jobs API.' />
@@ -627,6 +709,7 @@ const Dashboard = () => {
             </div>
           </AnimatedItem>
 
+        </motion.div>
         </div>
       </AnimatedLayout>
     </>

@@ -1,218 +1,333 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
+/* ─── Design Tokens ──────────────────────────────────────────────────────────── */
 :root {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  /* Accent Transitions */
   --transition-speed: 0.3s;
   --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode (Deep Cosmic) */
+/* ─── Dark Theme ─────────────────────────────────────────────────────────────── */
 [data-theme='dark'] {
-  --bg-canvas: #0B0F19;
-  --glass-bg: rgba(15, 23, 42, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-highlight: rgba(255, 255, 255, 0.15);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  /* Semantic aliases the user requested */
+  --bg-primary:   #0B0F19;
+  --text-main:    #F1F5F9;
 
-  --text-primary: #F1F5F9;
+  /* Solid Layered Elevation Tokens */
+  --bg-canvas:      #0B0F19;
+  --panel-bg:       #151E2E; /* Opaque solid color instead of translucent */
+  --panel-border:   #1E293B;
+  --panel-shadow:   0 10px 30px -10px rgba(0,0,0,0.8),
+                    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  --shadow-3d-2: 0 15px 35px -5px rgba(0,0,0,0.55), 0 5px 15px -5px rgba(0,0,0,0.35);
+  --shadow-3d-3: 0 30px 60px -15px rgba(0,0,0,0.7), 0 10px 20px -10px rgba(0,0,0,0.4),
+                 inset 0 1px 0 rgba(255,255,255,0.15);
+
+  --glow-blue:   0 0 25px rgba(6,  182, 212, 0.2);
+  --glow-purple: 0 0 25px rgba(99, 102, 241, 0.2);
+  --glow-green:  0 0 25px rgba(52, 211, 153, 0.2);
+
+  --text-primary:   #F1F5F9;
   --text-secondary: #94A3B8;
-
-  --accent-blue: #06B6D4;     /* Neon Cyan */
-  --accent-purple: #6366F1;   /* Electric Indigo */
-  --accent-green: #34D399;    /* Neon Green */
-
-  --orb-opacity: 0.15;
+  --accent-blue:    #06B6D4;
+  --accent-purple:  #6366F1;
+  --accent-green:   #34D399;
+  --orb-opacity:    0.15;
 }
 
-/* Light Mode (Clean Tech) */
+/* ─── Light Theme ────────────────────────────────────────────────────────────── */
 [data-theme='light'] {
-  --bg-canvas: #F8FAFC;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(15, 23, 42, 0.06);
-  --glass-highlight: rgba(15, 23, 42, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+  --bg-primary:   #F8FAFC;
+  --text-main:    #1E293B;
 
-  --text-primary: #1E293B;
+  --bg-canvas:      #F8FAFC;
+  --panel-bg:       #FFFFFF; /* Solid opaque white */
+  --panel-border:   #E2E8F0;
+  --panel-shadow:   0 10px 30px -10px rgba(15,23,42,0.1),
+                    0 4px 6px -2px rgba(15,23,42,0.05);
+
+  --shadow-3d-2: 0 12px 28px -5px rgba(15,23,42,0.06), 0 4px 10px -5px rgba(15,23,42,0.03);
+  --shadow-3d-3: 0 24px 48px -10px rgba(15,23,42,0.1), 0 8px 18px -8px rgba(15,23,42,0.05),
+                 inset 0 1px 0 rgba(255,255,255,0.9);
+
+  --glow-blue:   0 0 25px rgba(37, 99, 235, 0.1);
+  --glow-purple: 0 0 25px rgba(139,92, 246, 0.1);
+  --glow-green:  0 0 25px rgba(16, 185, 129, 0.1);
+
+  --text-primary:   #1E293B;
   --text-secondary: #64748B;
-
-  --accent-blue: #2563EB;     /* Electric Blue */
-  --accent-purple: #8B5CF6;   /* Soft Violet */
-  --accent-green: #10B981;    /* Emerald Green */
-
-  --orb-opacity: 0.06;
+  --accent-blue:    #2563EB;
+  --accent-purple:  #8B5CF6;
+  --accent-green:   #10B981;
+  --orb-opacity:    0.06;
 }
 
-/* Global Theme Transitions */
+/* ─── Global Box-Sizing ──────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
-  transition: background-color var(--transition-speed) var(--transition-easing),
-              color var(--transition-speed) var(--transition-easing),
-              border-color var(--transition-speed) var(--transition-easing),
-              box-shadow var(--transition-speed) var(--transition-easing),
-              backdrop-filter var(--transition-speed) var(--transition-easing);
 }
 
-body {
+/* ─── Theme Transition ───────────────────────────────────────────────────────── */
+/*  ONLY transitioning theme-reactive properties.
+    transform, opacity, filter are intentionally EXCLUDED
+    so they never fight Framer Motion's spring engine.             */
+body,
+.glass-panel,
+.btn-primary,
+.gradient-text,
+.sidebar-toggle-btn {
+  transition:
+    background-color 0.3s ease,
+    color            0.3s ease,
+    border-color     0.3s ease,
+    box-shadow       0.3s ease;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+html, body {
   margin: 0;
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
+  /* Root-level GPU layer — text stays sharp across all child transforms */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Base style resets to override the App.css overrides if any */
-body, html {
-  background-color: var(--bg-canvas) !important;
-  color: var(--text-primary) !important;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+/* ─── Framer Motion Ownership Rules ─────────────────────────────────────────── */
+/*  Every element that Framer Motion controls MUST have:
+      - transition: none          → no CSS fighting FM spring
+      - transform: translateZ(0)  → promote to GPU compositor immediately
+      - backface-visibility:hidden→ prevent text rasterisation blur
+      - will-change: transform    → hints browser before first frame       */
+.interactive-card-3d,
+.interactive-card-3d-inner,
+.dashboard-sidebar-wrapper,
+.dashboard-main-content {
+  transition: none !important;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-/* Floating Responsive Navbar specific CSS classes */
+/* ─── Responsive Navbar ──────────────────────────────────────────────────────── */
 @media (max-width: 767.98px) {
-  .desktop-nav {
-    display: none !important;
-  }
-  .mobile-trigger {
-    display: flex !important;
-  }
-  .main-navbar {
-    padding: 0 15px !important;
-  }
+  .desktop-nav    { display: none  !important; }
+  .mobile-trigger { display: flex  !important; }
+  .main-navbar    { padding: 0 15px !important; }
 }
 
-/* Responsive Main View Layout adjusts due to fixed top navbar */
+/* ─── Main Layout Offset ─────────────────────────────────────────────────────── */
 .main-content-layout {
   padding-top: 110px !important;
 }
 
-/* Global System Utility Classes */
+/* ─── Solid Elevation Panel ─────────────────────────────────────────────────── */
 .glass-panel {
-  background: var(--glass-bg) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-  border: 1px solid var(--glass-border) !important;
-  border-radius: 24px !important;
-  box-shadow: var(--glass-shadow) !important;
+  background:           var(--panel-bg)    !important;
+  /* Removed all backdrop-filter for zero text blur and maximum performance */
+  border:               1px solid var(--panel-border) !important;
+  border-radius:        24px !important;
+  box-shadow:           var(--panel-shadow) !important;
 }
 
+/* ─── Background Orbs ────────────────────────────────────────────────────────── */
 .bg-orbital-glow {
   position: fixed;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(100px);          /* static — not changed on hover */
   z-index: -1;
   pointer-events: none;
   animation: float 20s infinite alternate ease-in-out;
   opacity: var(--orb-opacity);
-  transition: opacity var(--transition-speed) var(--transition-easing);
+  transition: opacity 0.3s ease;
+  /* Orbs get their own GPU layer so they don't force repaints */
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
-
 .bg-orb-1 {
-  width: 50vw;
-  height: 50vw;
-  background: radial-gradient(circle, var(--accent-blue) 0%, rgba(0,0,0,0) 70%);
-  top: -10%;
-  left: -10%;
+  width: 50vw; height: 50vw;
+  background: radial-gradient(circle, var(--accent-blue) 0%, transparent 70%);
+  top: -10%; left: -10%;
 }
-
 .bg-orb-2 {
-  width: 40vw;
-  height: 40vw;
-  background: radial-gradient(circle, var(--accent-purple) 0%, rgba(0,0,0,0) 70%);
-  bottom: -10%;
-  right: -10%;
+  width: 40vw; height: 40vw;
+  background: radial-gradient(circle, var(--accent-purple) 0%, transparent 70%);
+  bottom: -10%; right: -10%;
   animation-delay: -10s;
 }
 
-/* Float Animation */
+/* ─── Keyframes ──────────────────────────────────────────────────────────────── */
 @keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(5%, 10%) scale(1.1); }
+  0%   { transform: translate(0,   0)   scale(1);   }
+  50%  { transform: translate(5%,  10%) scale(1.1); }
   100% { transform: translate(-5%, -5%) scale(0.9); }
 }
-
 @keyframes pulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
-/* Premium Buttons & Text Styling */
+/* ─── Buttons ────────────────────────────────────────────────────────────────── */
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) !important;
-  border: none !important;
+  background:    linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) !important;
+  border:        none !important;
   border-radius: 12px !important;
-  padding: 14px 28px !important;
-  font-weight: 600 !important;
-  font-size: 1rem !important;
-  font-family: inherit !important;
-  cursor: pointer !important;
-  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15) !important;
-  position: relative !important;
-  overflow: hidden !important;
+  padding:       14px 28px !important;
+  font-weight:   600 !important;
+  font-size:     1rem !important;
+  font-family:   inherit !important;
+  cursor:        pointer !important;
+  box-shadow:    0 4px 15px rgba(56,189,248,0.15) !important;
+  position:      relative !important;
+  overflow:      hidden !important;
+  /* Promote button to GPU layer; siblings text stays sharp */
+  transform:     translateZ(0);
+  will-change:   transform;
+  backface-visibility: hidden;
 }
+[data-theme='dark']  .btn-primary { color: #0B0F19 !important; }
+[data-theme='light'] .btn-primary { color: #FFFFFF !important; }
 
-/* Ensure button text remains legible in light/dark themes */
-[data-theme='dark'] .btn-primary {
-  color: #0B0F19 !important;
-}
-[data-theme='light'] .btn-primary {
-  color: #FFFFFF !important;
-}
-
+/* Shimmer sweep on hover — CSS-only, no transform */
 .btn-primary::after {
   content: '';
   position: absolute;
   top: 0; left: -100%; width: 50%; height: 100%;
   background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
   transform: skewX(-20deg);
-  transition: all 0.5s;
+  transition: left 0.5s ease;
 }
-
+/* box-shadow lift ONLY — no translateY which blurs siblings */
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(129, 140, 248, 0.25) !important;
+  box-shadow: 0 8px 28px rgba(129,140,248,0.38) !important;
 }
-
-.btn-primary:hover:not(:disabled)::after {
-  left: 150%;
-}
-
+.btn-primary:hover:not(:disabled)::after { left: 150%; }
 .btn-primary:disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
+  opacity:    0.5 !important;
+  cursor:     not-allowed !important;
   background: var(--text-secondary) !important;
   box-shadow: none !important;
 }
 
+/* ─── Gradient Text ──────────────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(to right, var(--accent-blue), var(--accent-purple)) !important;
+  background:              linear-gradient(to right, var(--accent-blue), var(--accent-purple)) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
-  display: inline-block !important;
+  display:                 inline-block !important;
+  /* Gradient text must NOT be inside a preserve-3d subtree
+     or it blurs. The translateZ(0) here keeps it in a flat layer. */
+  transform:               translateZ(0);
+  backface-visibility:     hidden;
 }
 
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar          { width: 8px; height: 8px; }
+::-webkit-scrollbar-track    { background: rgba(0,0,0,0.02); }
+::-webkit-scrollbar-thumb    { background: var(--panel-border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
+/* ─── Dashboard Layout ───────────────────────────────────────────────────────── */
+.dashboard-container {
+  display:     flex;
+  height:      calc(100vh - 110px);
+  width:       100%;
+  overflow:    hidden;
+  padding:     0 20px 20px 20px;
+  gap:         24px;
+  box-sizing:  border-box;
+  color:       var(--text-primary);
 }
-::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.05);
+
+.dashboard-sidebar-wrapper {
+  display:        flex;
+  flex-direction: column;
+  height:         100%;
+  z-index:        10;
+  box-sizing:     border-box;
+  overflow:       hidden;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--glass-border);
-  border-radius: 10px;
+
+.dashboard-main-content {
+  flex:           1;
+  display:        flex;
+  flex-direction: column;
+  height:         100%;
+  overflow-y:     auto;
+  padding-right:  8px;
+  box-sizing:     border-box;
+  min-width:      0;   /* prevent flex child overflow */
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-purple);
+
+/* ─── Sidebar Controls ───────────────────────────────────────────────────────── */
+.sidebar-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   24px;
 }
+
+.sidebar-toggle-btn {
+  background:    rgba(255,255,255,0.04);
+  border:        1px solid var(--panel-border);
+  border-radius: 8px;
+  width:  28px;
+  height: 28px;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  cursor:          pointer;
+  color:           var(--text-secondary);
+}
+.sidebar-toggle-btn:hover {
+  color:       var(--text-primary);
+  background:  rgba(255,255,255,0.08);
+  border-color:var(--accent-blue);
+  box-shadow:  0 0 10px rgba(6,182,212,0.25);
+}
+
+.sidebar-history-scroll {
+  flex:       1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px;
+  margin-bottom: 15px;
+}
+
+/* ─── 3D Interactive Card ────────────────────────────────────────────────────── */
+.interactive-card-3d {
+  position:        relative;
+  transform-style: preserve-3d;
+  perspective:     1000px;
+  cursor:          pointer;
+}
+
+.interactive-card-3d-inner {
+  position:        relative;
+  width:           100%;
+  height:          100%;
+  border-radius:   inherit;
+  /* CRITICAL: flat stacking context inside 3D card so child text
+     elements are NOT subject to sub-pixel transform blur.         */
+  transform-style: flat;
+}
+
+/* NO translateZ on children — this was the main blur culprit */
+.interactive-card-3d-inner > * {
+  position: relative;
+}
+
+

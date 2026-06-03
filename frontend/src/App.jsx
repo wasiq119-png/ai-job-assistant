@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -7,6 +7,7 @@ import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
 import Navbar from './components/Navbar';
 import PageTransition from './components/PageTransition';
+import Preloader from './components/Preloader';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
@@ -34,9 +35,18 @@ const AppRoutes = () => (
 );
 
 function App() {
+  const [showPreloader, setShowPreloader] = useState(true);
+
+  useEffect(() => {
+    // Hide preloader once the browser has painted the first frame
+    const timer = setTimeout(() => setShowPreloader(false), 1400);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <AuthProvider>
       <ThemeProvider>
+        <Preloader isVisible={showPreloader} />
         <Router>
           <Navbar />
           <AppRoutes />
