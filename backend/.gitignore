@@ -35,3 +35,7 @@ build/
 ### Environments ###
 .env
 .env.*
+
+### Logs & Crash Dumps ###
+*.log
+crash_log.txt
